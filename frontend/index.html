@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Interview Coach</title>
+    <title>ChatnLearn - AI Interview Coach</title>
     <style>
         * {
             margin: 0;
@@ -12,39 +12,203 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            padding: 2rem;
         }
 
         .container {
-            max-width: 1200px;
-            width: 100%;
-        }
-
-        .main-page {
+            max-width: none;
+            width: calc(100vw - 4rem);
+            margin: 0 auto;
             background: white;
             border-radius: 20px;
-            padding: 60px 40px;
+            padding: 3rem;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
             text-align: center;
+            margin-bottom: 3rem;
         }
 
-        .main-page h1 {
-            font-size: 3em;
-            color: #333;
-            margin-bottom: 20px;
+        .header h1 {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
         }
 
-        .main-page p {
-            font-size: 1.2em;
+        .header p {
+            font-size: 1.3rem;
             color: #666;
-            margin-bottom: 40px;
             line-height: 1.6;
+        }
+
+        .versions-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .version-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2.5rem;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .version-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .version-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .version-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .version-icon {
+            font-size: 3rem;
+        }
+
+        .version-title {
+            flex: 1;
+        }
+
+        .version-title h2 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .version-badge.new {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .version-description {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .features-list li {
+            padding: 0.5rem 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .features-list li::before {
+            content: '✓';
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .best-for {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .best-for strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .best-for ul {
+            list-style-position: inside;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .select-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin-top: auto;
+        }
+
+        .select-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+        }
+
+        @media (max-width: 968px) {
+            .versions-container {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 2rem;
+            }
         }
 
         .start-btn {
@@ -207,196 +371,75 @@
 </head>
 <body>
     <div class="container">
-        <!-- Main Landing Page -->
-        <div id="mainPage" class="main-page">
-            <h1>🎯 AI Interview Coach</h1>
-            <p>
-                Practice your interview skills with our AI-powered coach.<br>
-                Get real-time feedback, improve your answers, and build confidence<br>
-                for your next job interview.
-            </p>
-            <button class="start-btn" onclick="startInterview()">
-                Start Interview Practice
-            </button>
+        <div class="header">
+            <h1>
+                🎓 ChatnLearn
+            </h1>
+            <p>Choose your interview practice mode and start improving your skills today!</p>
         </div>
 
-        <!-- Interview Page -->
-        <div id="interviewPage" class="interview-page">
-            <div class="video-container">
-                <div class="video-wrapper">
-                    <video id="localVideo" autoplay muted playsinline></video>
-                    <div class="video-label">You</div>
+        <div class="versions-container">
+            <!-- Version 1: Interactive Chat Interview -->
+            <div class="version-card" onclick="location.href='video.html'">
+                <div class="version-header">
+                    <div class="version-icon">💬</div>
+                    <div class="version-title">
+                        <h2>Interactive Chat</h2>
+                    </div>
                 </div>
-                <div class="video-wrapper">
-                    <video id="remoteVideo" autoplay playsinline></video>
-                    <div class="video-label">AI Coach</div>
+
+                <p class="version-description">
+                    Practice with visible conversation history, timed responses, and immediate feedback. 
+                    Perfect for structured learning and reviewing your progress.
+                </p>
+
+                <div class="best-for">
+                    <strong>🎯 Best For:</strong>
+                    <ul>
+                        <li>Beginners starting interview practice</li>
+                        <li>Practicing with time constraints</li>
+                        <li>Reviewing conversation history</li>
+                        <li>Getting immediate corrections</li>
+                    </ul>
                 </div>
-            </div>
-            
-            <div class="controls">
-                <button class="control-btn mute-btn" id="muteBtn" onclick="toggleMute()">
-                    Mute
-                </button>
-                <button class="control-btn end-btn" onclick="endInterview()">
-                    End Interview
-                </button>
+
+                <button class="select-btn">Start Interactive Practice →</button>
             </div>
 
-            <div id="status" class="status">
-                Initializing...
+            <!-- Version 2: Real-Time Interview Simulation -->
+            <div class="version-card" onclick="location.href='interview_realtime.html'">
+                <div class="version-header">
+                    <div class="version-icon">🎬</div>
+                    <div class="version-title">
+                        <h2>Real Interview Simulation</h2>
+                    </div>
+                </div>
+
+                <p class="version-description">
+                    Immersive full-screen experience with natural conversation flow. 
+                    Complete the interview and receive comprehensive feedback with detailed scoring.
+                </p>
+
+                <div class="best-for">
+                    <strong>🎯 Best For:</strong>
+                    <ul>
+                        <li>Realistic interview simulation</li>
+                        <li>Reducing interview anxiety</li>
+                        <li>Professional interview preparation</li>
+                        <li>Getting detailed performance analysis</li>
+                    </ul>
+                </div>
+
+                <button class="select-btn">Start Real Simulation →</button>
             </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>💡 Tip:</strong> Try the Interactive Chat first to get comfortable, then move to Real Simulation for the full experience!</p>
+            <p style="margin-top: 1rem; color: #999; font-size: 0.9rem;">
+                ChatnLearn - AI-Powered Interview Coach | Built with Azure OpenAI
+            </p>
         </div>
     </div>
-
-    <!-- Daily.co Client SDK -->
-    <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
-    
-    <script>
-        const API_URL = 'http://localhost:8000';
-        let dailyCall = null;
-        let isMuted = false;
-
-        async function startInterview() {
-            const mainPage = document.getElementById('mainPage');
-            const interviewPage = document.getElementById('interviewPage');
-            const status = document.getElementById('status');
-
-            // Show interview page
-            mainPage.style.display = 'none';
-            interviewPage.classList.add('active');
-            
-            updateStatus('Connecting...', 'connecting');
-
-            try {
-                // Create a Daily room
-                const roomResponse = await fetch(`${API_URL}/create-room`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!roomResponse.ok) {
-                    throw new Error('Failed to create room');
-                }
-
-                const roomData = await roomResponse.json();
-                console.log('Room created:', roomData);
-
-                // Join the Daily call
-                dailyCall = window.DailyIframe.createCallObject({
-                    audioSource: true,
-                    videoSource: true,
-                });
-
-                // Set up event listeners
-                dailyCall
-                    .on('joined-meeting', handleJoinedMeeting)
-                    .on('participant-joined', handleParticipantJoined)
-                    .on('participant-left', handleParticipantLeft)
-                    .on('error', handleError);
-
-                // Join the room
-                await dailyCall.join({
-                    url: roomData.room_url,
-                    token: roomData.token
-                });
-
-                // Start the bot
-                const botResponse = await fetch(`${API_URL}/start-bot?room_url=${encodeURIComponent(roomData.room_url)}&room_name=${encodeURIComponent(roomData.room_name)}`, {
-                    method: 'POST'
-                });
-
-                if (!botResponse.ok) {
-                    throw new Error('Failed to start bot');
-                }
-
-                updateStatus('Connected! The AI coach will join shortly...', 'connected');
-
-            } catch (error) {
-                console.error('Error starting interview:', error);
-                updateStatus('Error: ' + error.message, 'error');
-            }
-        }
-
-        function handleJoinedMeeting(event) {
-            console.log('Joined meeting:', event);
-            updateStatus('You joined! Waiting for AI coach...', 'connected');
-            
-            // Display local video
-            const localVideo = document.getElementById('localVideo');
-            localVideo.srcObject = new MediaStream([
-                dailyCall.localVideo(),
-                dailyCall.localAudio()
-            ]);
-        }
-
-        function handleParticipantJoined(event) {
-            console.log('Participant joined:', event);
-            updateStatus('AI Coach connected! Start speaking when ready.', 'connected');
-            
-            // Display remote video if available
-            if (event.participant.video) {
-                const remoteVideo = document.getElementById('remoteVideo');
-                remoteVideo.srcObject = new MediaStream([event.participant.videoTrack]);
-            }
-            if (event.participant.audio) {
-                const remoteVideo = document.getElementById('remoteVideo');
-                if (!remoteVideo.srcObject) {
-                    remoteVideo.srcObject = new MediaStream([event.participant.audioTrack]);
-                } else {
-                    remoteVideo.srcObject.addTrack(event.participant.audioTrack);
-                }
-            }
-        }
-
-        function handleParticipantLeft(event) {
-            console.log('Participant left:', event);
-            updateStatus('AI Coach disconnected.', 'error');
-        }
-
-        function handleError(error) {
-            console.error('Daily error:', error);
-            updateStatus('Connection error: ' + error.errorMsg, 'error');
-        }
-
-        function toggleMute() {
-            if (!dailyCall) return;
-            
-            isMuted = !isMuted;
-            dailyCall.setLocalAudio(!isMuted);
-            
-            const muteBtn = document.getElementById('muteBtn');
-            muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
-            muteBtn.style.background = isMuted ? '#ef4444' : '#3b82f6';
-        }
-
-        async function endInterview() {
-            if (dailyCall) {
-                await dailyCall.leave();
-                await dailyCall.destroy();
-                dailyCall = null;
-            }
-
-            // Return to main page
-            const mainPage = document.getElementById('mainPage');
-            const interviewPage = document.getElementById('interviewPage');
-            
-            interviewPage.classList.remove('active');
-            mainPage.style.display = 'block';
-        }
-
-        function updateStatus(message, type = '') {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = 'status' + (type ? ' ' + type : '');
-            
-            if (type === 'connecting') {
-                const loader = document.createElement('span');
-                loader.className = 'loading';
-                status.appendChild(loader);
-            }
-        }
-    </script>
 </body>
 </html>

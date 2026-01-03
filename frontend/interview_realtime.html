@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Interview Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Main Page Styles */
+        .container {
+            max-width: 600px;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            margin: auto;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            margin: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Preparation Page */
+        .countdown {
+            font-size: 6rem;
+            color: #667eea;
+            font-weight: bold;
+            margin: 2rem 0;
+        }
+
+        /* Interview Page - Full Screen */
+        .interview-container {
+            width: 100%;
+            height: 100vh;
+            background: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .video-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            background: #16213e;
+        }
+
+        .video-wrapper {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #0f3460;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        /* Caption Overlay */
+        .caption-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            padding: 2rem;
+            color: white;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            display: none;
+            max-height: 30%;
+            overflow-y: auto;
+        }
+
+        .caption-overlay.active {
+            display: block;
+        }
+
+        /* Controls Bar */
+        .controls-bar {
+            background: #0f3460;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .control-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .control-btn.end {
+            background: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        .control-btn.end:hover {
+            background: #c0392b;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2ecc71;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Feedback Summary Page */
+        .summary-container {
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+
+        .summary-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .summary-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .summary-header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .overall-score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 1rem 0;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .score-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 5px solid #667eea;
+        }
+
+        .score-section h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .feedback-text {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .list-section {
+            margin-top: 1rem;
+        }
+
+        .list-section h3 {
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .list-section ul {
+            list-style-position: inside;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .list-section li {
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .strengths li {
+            color: #27ae60;
+        }
+
+        .improvements li {
+            color: #e67e22;
+        }
+
+        .key-takeaways {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .key-takeaways h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .key-takeaways ul {
+            list-style-position: inside;
+            line-height: 2;
+            font-size: 1.1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #667eea;
+            font-size: 1.5rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .video-container {
+                grid-template-columns: 1fr;
+            }
+
+            .controls-bar {
+                flex-direction: column;
+            }
+
+            .summary-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Page -->
+    <div id="mainPage" class="page active">
+        <div class="container">
+            <h1>🎙️ Real-Time Interview Simulation</h1>
+            <p class="subtitle">Experience a realistic job interview with AI-powered feedback</p>
+            
+            <div>
+                <span class="feature-badge">🎥 Live Video</span>
+                <span class="feature-badge">🗣️ Voice Conversation</span>
+                <span class="feature-badge">📝 Caption Support</span>
+                <span class="feature-badge">📊 Detailed Feedback</span>
+            </div>
+            
+            <button class="btn" onclick="startPreparation()">Start Interview</button>
+        </div>
+    </div>
+
+    <!-- Preparation Page -->
+    <div id="preparationPage" class="page">
+        <div class="container">
+            <h1>🎬 Preparing Your Interview</h1>
+            <p class="subtitle">Setting up your camera and microphone...</p>
+            <div class="countdown" id="countdown">10</div>
+            <p class="subtitle">Get ready!</p>
+        </div>
+    </div>
+
+    <!-- Interview Page -->
+    <div id="interviewPage" class="page">
+        <div class="interview-container">
+            <div class="video-container">
+                <!-- AI Interviewer Video -->
+                <div class="video-wrapper">
+                    <div class="video-label">AI Interviewer</div>
+                    <video id="aiVideo" autoplay muted></video>
+                    
+                    <!-- Caption Overlay -->
+                    <div id="captionOverlay" class="caption-overlay">
+                        <div id="captionText"></div>
+                    </div>
+                </div>
+
+                <!-- User Video -->
+                <div class="video-wrapper">
+                    <div class="video-label">You</div>
+                    <video id="userVideo" autoplay muted playsinline></video>
+                </div>
+            </div>
+
+            <!-- Controls Bar -->
+            <div class="controls-bar">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Interview in Progress</span>
+                </div>
+
+                <button id="captionBtn" class="control-btn" onclick="toggleCaptions()">
+                    📝 Show Captions
+                </button>
+
+                <button class="control-btn end" onclick="endInterview()">
+                    ⏹️ End Interview
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Page -->
+    <div id="summaryPage" class="page">
+        <div class="summary-container">
+            <div id="summaryLoading" class="loading">
+                <h2>Analyzing Your Interview...</h2>
+                <div class="spinner"></div>
+                <p>Please wait while we prepare your personalized feedback</p>
+            </div>
+
+            <div id="summaryContent" class="summary-content" style="display: none;">
+                <!-- Summary content will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let localStream = null;
+        let recognition = null;
+        let isSpeaking = false;
+        let captionsEnabled = false;
+        let currentAIMessage = '';
+        let speechSynthesis = window.speechSynthesis;
+        let isInterviewActive = false;
+
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // Start preparation
+        async function startPreparation() {
+            showPage('preparationPage');
+            
+            try {
+                // Request camera and microphone permissions
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+
+                // Start countdown
+                let countdown = 10;
+                const countdownEl = document.getElementById('countdown');
+                
+                const timer = setInterval(() => {
+                    countdown--;
+                    countdownEl.textContent = countdown;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        startInterview();
+                    }
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error accessing media devices:', error);
+                alert('Please allow camera and microphone access to continue.');
+                showPage('mainPage');
+            }
+        }
+
+        // Start interview
+        async function startInterview() {
+            showPage('interviewPage');
+            isInterviewActive = true;
+
+            // Set up user video
+            const userVideo = document.getElementById('userVideo');
+            userVideo.srcObject = localStream;
+
+            // Initialize WebSocket
+            ws = new WebSocket('ws://localhost:8000/ws/interview-realtime');
+
+            ws.onopen = () => {
+                console.log('Connected to interview server');
+            };
+
+            ws.onmessage = async (event) => {
+                const data = JSON.parse(event.data);
+                console.log('Received:', data);
+
+                if (data.type === 'ai_message') {
+                    currentAIMessage = data.content;
+                    
+                    // Update captions if enabled
+                    if (captionsEnabled) {
+                        document.getElementById('captionText').textContent = currentAIMessage;
+                    }
+
+                    // Speak the message
+                    await speakText(currentAIMessage);
+
+                } else if (data.type === 'interview_complete') {
+                    // Interview finished, show summary
+                    isInterviewActive = false;
+                    stopVoiceRecognition();
+                    showSummary(data.summary);
+                } else if (data.type === 'error') {
+                    console.error('Server error:', data.content);
+                    alert('An error occurred: ' + data.content);
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            ws.onclose = () => {
+                console.log('Disconnected from server');
+            };
+
+            // Initialize voice recognition
+            initVoiceRecognition();
+        }
+
+        // Initialize voice recognition
+        function initVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                console.error('Speech recognition not supported');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            let fullTranscript = '';
+
+            recognition.onresult = (event) => {
+                // Get all results from the start
+                let transcript = '';
+                for (let i = 0; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        transcript += event.results[i][0].transcript + ' ';
+                    }
+                }
+
+                if (transcript.trim() && transcript !== fullTranscript) {
+                    fullTranscript = transcript.trim();
+                    console.log('User said:', fullTranscript);
+                    
+                    // Send to server
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({
+                            type: 'user_message',
+                            content: fullTranscript
+                        }));
+                    }
+
+                    // Reset for next response
+                    fullTranscript = '';
+                    recognition.stop();
+                    setTimeout(() => {
+                        if (isInterviewActive && !isSpeaking) {
+                            recognition.start();
+                        }
+                    }, 500);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                if (event.error === 'no-speech') {
+                    // Restart recognition on no-speech
+                    setTimeout(() => {
+                        if (isInterviewActive && !isSpeaking) {
+                            try {
+                                recognition.start();
+                            } catch (e) {
+                                console.log('Recognition already started');
+                            }
+                        }
+                    }, 100);
+                }
+            };
+
+            recognition.onend = () => {
+                // Only restart if interview is still active and AI is not speaking
+                if (isInterviewActive && !isSpeaking) {
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            console.log('Recognition already started');
+                        }
+                    }, 100);
+                }
+            };
+
+            // Start recognition after a delay (let AI speak first)
+            setTimeout(() => {
+                if (isInterviewActive) {
+                    recognition.start();
+                }
+            }, 2000);
+        }
+
+        // Stop voice recognition
+        function stopVoiceRecognition() {
+            if (recognition) {
+                recognition.stop();
+                recognition = null;
+            }
+        }
+
+        // Speak text using TTS
+        async function speakText(text) {
+            return new Promise((resolve) => {
+                // Stop any ongoing speech
+                speechSynthesis.cancel();
+
+                // Pause voice recognition while speaking
+                isSpeaking = true;
+                if (recognition) {
+                    try {
+                        recognition.stop();
+                    } catch (e) {
+                        console.log('Recognition already stopped');
+                    }
+                }
+
+                // Remove markdown formatting
+                const cleanText = text
+                    .replace(/\*\*/g, '')
+                    .replace(/\*/g, '')
+                    .replace(/_/g, '')
+                    .replace(/`/g, '')
+                    .replace(/#{1,6}\s/g, '')
+                    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+                    .replace(/^\s*[-*+]\s/gm, '');
+
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    // Resume voice recognition after a short delay
+                    setTimeout(() => {
+                        if (isInterviewActive && recognition) {
+                            try {
+                                recognition.start();
+                            } catch (e) {
+                                console.log('Recognition already started');
+                            }
+                        }
+                    }, 500);
+                    resolve();
+                };
+
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    isSpeaking = false;
+                    resolve();
+                };
+
+                speechSynthesis.speak(utterance);
+            });
+        }
+
+        // Toggle captions
+        function toggleCaptions() {
+            captionsEnabled = !captionsEnabled;
+            const overlay = document.getElementById('captionOverlay');
+            const btn = document.getElementById('captionBtn');
+
+            if (captionsEnabled) {
+                overlay.classList.add('active');
+                btn.textContent = '📝 Hide Captions';
+                btn.classList.add('active');
+                document.getElementById('captionText').textContent = currentAIMessage;
+            } else {
+                overlay.classList.remove('active');
+                btn.textContent = '📝 Show Captions';
+                btn.classList.remove('active');
+            }
+        }
+
+        // End interview
+        function endInterview() {
+            if (!confirm('Are you sure you want to end the interview?')) {
+                return;
+            }
+
+            isInterviewActive = false;
+            stopVoiceRecognition();
+            speechSynthesis.cancel();
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'end_interview'
+                }));
+            }
+
+            // Show summary page with loading
+            showPage('summaryPage');
+        }
+
+        // Show summary
+        function showSummary(summary) {
+            showPage('summaryPage');
+
+            // Hide loading, show content
+            setTimeout(() => {
+                document.getElementById('summaryLoading').style.display = 'none';
+                const contentEl = document.getElementById('summaryContent');
+                contentEl.style.display = 'block';
+
+                // Build summary HTML
+                contentEl.innerHTML = `
+                    <div class="summary-header">
+                        <h1>📊 Interview Feedback Report</h1>
+                        <div class="score-label">Overall Score</div>
+                        <div class="overall-score">${summary.overall_score}/100</div>
+                    </div>
+
+                    <div class="score-section">
+                        <h2>
+                            <span>🗣️ Language Use</span>
+                            <span class="section-score">${summary.language_use.score}/100</span>
+                        </h2>
+                        <p class="feedback-text">${summary.language_use.feedback}</p>
+                        
+                        <div class="list-section strengths">
+                            <h3>✅ Strengths:</h3>
+                            <ul>
+                                ${summary.language_use.strengths.map(s => `<li>${s}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="list-section improvements">
+                            <h3>💡 Areas for Improvement:</h3>
+                            <ul>
+                                ${summary.language_use.improvements.map(i => `<li>${i}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <h2>
+                            <span>💼 Answer Quality</span>
+                            <span class="section-score">${summary.answer_quality.score}/100</span>
+                        </h2>
+                        <p class="feedback-text">${summary.answer_quality.feedback}</p>
+                        
+                        <div class="list-section strengths">
+                            <h3>✅ Strengths:</h3>
+                            <ul>
+                                ${summary.answer_quality.strengths.map(s => `<li>${s}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="list-section improvements">
+                            <h3>💡 Areas for Improvement:</h3>
+                            <ul>
+                                ${summary.answer_quality.improvements.map(i => `<li>${i}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <h2>📝 Detailed Feedback</h2>
+                        <p class="feedback-text">${summary.detailed_feedback}</p>
+                    </div>
+
+                    <div class="key-takeaways">
+                        <h2>🎯 Key Takeaways</h2>
+                        <ul>
+                            ${summary.key_takeaways.map(t => `<li>${t}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn" onclick="location.reload()">Start New Interview</button>
+                    </div>
+                `;
+            }, 2000);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            if (ws) {
+                ws.close();
+            }
+            stopVoiceRecognition();
+            speechSynthesis.cancel();
+        });
+    </script>
+</body>
+</html>
