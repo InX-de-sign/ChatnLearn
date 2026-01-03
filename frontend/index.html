@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Coach</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .main-page {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .main-page h1 {
+            font-size: 3em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .main-page p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+        }
+
+        .interview-page {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .interview-page.active {
+            display: block;
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .end-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .end-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .mute-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .mute-btn:hover {
+            background: #2563eb;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f3f4f6;
+            border-radius: 10px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .status.connecting {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status.connected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                grid-template-columns: 1fr;
+            }
+
+            .main-page h1 {
+                font-size: 2em;
+            }
+
+            .main-page p {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Landing Page -->
+        <div id="mainPage" class="main-page">
+            <h1>🎯 AI Interview Coach</h1>
+            <p>
+                Practice your interview skills with our AI-powered coach.<br>
+                Get real-time feedback, improve your answers, and build confidence<br>
+                for your next job interview.
+            </p>
+            <button class="start-btn" onclick="startInterview()">
+                Start Interview Practice
+            </button>
+        </div>
+
+        <!-- Interview Page -->
+        <div id="interviewPage" class="interview-page">
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                    <div class="video-label">You</div>
+                </div>
+                <div class="video-wrapper">
+                    <video id="remoteVideo" autoplay playsinline></video>
+                    <div class="video-label">AI Coach</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="control-btn mute-btn" id="muteBtn" onclick="toggleMute()">
+                    Mute
+                </button>
+                <button class="control-btn end-btn" onclick="endInterview()">
+                    End Interview
+                </button>
+            </div>
+
+            <div id="status" class="status">
+                Initializing...
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily.co Client SDK -->
+    <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+    
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let dailyCall = null;
+        let isMuted = false;
+
+        async function startInterview() {
+            const mainPage = document.getElementById('mainPage');
+            const interviewPage = document.getElementById('interviewPage');
+            const status = document.getElementById('status');
+
+            // Show interview page
+            mainPage.style.display = 'none';
+            interviewPage.classList.add('active');
+            
+            updateStatus('Connecting...', 'connecting');
+
+            try {
+                // Create a Daily room
+                const roomResponse = await fetch(`${API_URL}/create-room`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!roomResponse.ok) {
+                    throw new Error('Failed to create room');
+                }
+
+                const roomData = await roomResponse.json();
+                console.log('Room created:', roomData);
+
+                // Join the Daily call
+                dailyCall = window.DailyIframe.createCallObject({
+                    audioSource: true,
+                    videoSource: true,
+                });
+
+                // Set up event listeners
+                dailyCall
+                    .on('joined-meeting', handleJoinedMeeting)
+                    .on('participant-joined', handleParticipantJoined)
+                    .on('participant-left', handleParticipantLeft)
+                    .on('error', handleError);
+
+                // Join the room
+                await dailyCall.join({
+                    url: roomData.room_url,
+                    token: roomData.token
+                });
+
+                // Start the bot
+                const botResponse = await fetch(`${API_URL}/start-bot?room_url=${encodeURIComponent(roomData.room_url)}&room_name=${encodeURIComponent(roomData.room_name)}`, {
+                    method: 'POST'
+                });
+
+                if (!botResponse.ok) {
+                    throw new Error('Failed to start bot');
+                }
+
+                updateStatus('Connected! The AI coach will join shortly...', 'connected');
+
+            } catch (error) {
+                console.error('Error starting interview:', error);
+                updateStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        function handleJoinedMeeting(event) {
+            console.log('Joined meeting:', event);
+            updateStatus('You joined! Waiting for AI coach...', 'connected');
+            
+            // Display local video
+            const localVideo = document.getElementById('localVideo');
+            localVideo.srcObject = new MediaStream([
+                dailyCall.localVideo(),
+                dailyCall.localAudio()
+            ]);
+        }
+
+        function handleParticipantJoined(event) {
+            console.log('Participant joined:', event);
+            updateStatus('AI Coach connected! Start speaking when ready.', 'connected');
+            
+            // Display remote video if available
+            if (event.participant.video) {
+                const remoteVideo = document.getElementById('remoteVideo');
+                remoteVideo.srcObject = new MediaStream([event.participant.videoTrack]);
+            }
+            if (event.participant.audio) {
+                const remoteVideo = document.getElementById('remoteVideo');
+                if (!remoteVideo.srcObject) {
+                    remoteVideo.srcObject = new MediaStream([event.participant.audioTrack]);
+                } else {
+                    remoteVideo.srcObject.addTrack(event.participant.audioTrack);
+                }
+            }
+        }
+
+        function handleParticipantLeft(event) {
+            console.log('Participant left:', event);
+            updateStatus('AI Coach disconnected.', 'error');
+        }
+
+        function handleError(error) {
+            console.error('Daily error:', error);
+            updateStatus('Connection error: ' + error.errorMsg, 'error');
+        }
+
+        function toggleMute() {
+            if (!dailyCall) return;
+            
+            isMuted = !isMuted;
+            dailyCall.setLocalAudio(!isMuted);
+            
+            const muteBtn = document.getElementById('muteBtn');
+            muteBtn.textContent = isMuted ? 'Unmute' : 'Mute';
+            muteBtn.style.background = isMuted ? '#ef4444' : '#3b82f6';
+        }
+
+        async function endInterview() {
+            if (dailyCall) {
+                await dailyCall.leave();
+                await dailyCall.destroy();
+                dailyCall = null;
+            }
+
+            // Return to main page
+            const mainPage = document.getElementById('mainPage');
+            const interviewPage = document.getElementById('interviewPage');
+            
+            interviewPage.classList.remove('active');
+            mainPage.style.display = 'block';
+        }
+
+        function updateStatus(message, type = '') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status' + (type ? ' ' + type : '');
+            
+            if (type === 'connecting') {
+                const loader = document.createElement('span');
+                loader.className = 'loading';
+                status.appendChild(loader);
+            }
+        }
+    </script>
+</body>
+</html>
