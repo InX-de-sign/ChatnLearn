@@ -40,7 +40,7 @@ async def root():
 @app.websocket("/ws/interview")
 async def websocket_interview(websocket: WebSocket):
     """
-    WebSocket endpoint for real-time interview session
+    WebSocket endpoint for real-time interview session (original version)
     """
     await websocket.accept()
     logger.info("Client connected to interview session")
@@ -54,6 +54,30 @@ async def websocket_interview(websocket: WebSocket):
         logger.info("Client disconnected")
     except Exception as e:
         logger.error(f"Error in interview session: {str(e)}")
+        try:
+            await websocket.close()
+        except:
+            pass
+
+
+@app.websocket("/ws/interview-realtime")
+async def websocket_interview_realtime(websocket: WebSocket):
+    """
+    WebSocket endpoint for real-time interview simulation (new version)
+    No chat interface, just conversation with final feedback
+    """
+    await websocket.accept()
+    logger.info("Client connected to real-time interview session")
+    
+    try:
+        # Import and run interview bot
+        from bot_interview import run_interview_bot
+        await run_interview_bot(websocket)
+        
+    except WebSocketDisconnect:
+        logger.info("Client disconnected from real-time interview")
+    except Exception as e:
+        logger.error(f"Error in real-time interview session: {str(e)}")
         try:
             await websocket.close()
         except:
