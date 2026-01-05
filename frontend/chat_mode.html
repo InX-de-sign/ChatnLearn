@@ -3,8 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Interview Coach - Video</title>
+    <title>AI Interview Coach - Chat Mode</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --color-primary: #5CCBEE;
+            --color-secondary: #6EE7B7;
+            --color-accent: #FFB4A2;
+            --color-purple: #A78BFA;
+            --color-yellow: #FFD166;
+            --font-body: 'Nunito Sans', sans-serif;
+            --font-headline: 'Comfortaa', cursive;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,8 +25,8 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -23,21 +36,24 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 800px;
             width: 100%;
         }
 
         .main-page {
             background: white;
             border-radius: 20px;
-            padding: 60px 40px;
+            padding: 60px 50px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             text-align: center;
+            margin:auto;
         }
 
         .main-page h1 {
+            font-family: var(--font-headline);
+            font-weight: 700;
             font-size: 3em;
-            color: #333;
+            color: var(--color-primary);
             margin-bottom: 20px;
         }
 
@@ -49,7 +65,7 @@
         }
 
         .start-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
             color: white;
             border: none;
             padding: 18px 50px;
@@ -57,22 +73,23 @@
             border-radius: 50px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: var(--font-body);
         }
 
         .start-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(92, 203, 238, 0.4);
         }
 
         .interview-page {
             display: none;
             background: white;
-            border-radius: 0;
+            border-radius: 20px;
             padding: 20px;
-            box-shadow: none;
-            width: 100vw;
-            min-height: 100vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            margin: auto;
         }
 
         .interview-page.active {
@@ -81,11 +98,13 @@
 
         .preparation-page {
             display: none;
+            max-width: 500px;
+            padding: 60px 50px;
             background: white;
             border-radius: 20px;
-            padding: 60px 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             text-align: center;
+            margin: auto;
         }
 
         .preparation-page.active {
@@ -93,8 +112,10 @@
         }
 
         .preparation-page h2 {
+            font-family: var(--font-headline);
+            font-weight: 700;
             font-size: 2em;
-            color: #333;
+            color: var(--color-primary);
             margin-bottom: 20px;
         }
 
@@ -103,19 +124,6 @@
             color: #666;
             margin-bottom: 30px;
             line-height: 1.6;
-        }
-
-        .countdown {
-            font-size: 5em;
-            font-weight: bold;
-            color: #667eea;
-            margin: 30px 0;
-            animation: countPulse 1s infinite;
-        }
-
-        @keyframes countPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
         }
 
         .permission-icons {
@@ -127,7 +135,7 @@
         }
 
         .grant-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
             color: white;
             border: none;
             padding: 18px 50px;
@@ -135,12 +143,13 @@
             border-radius: 50px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: var(--font-body);
         }
 
         .grant-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 10px 30px rgba(110, 231, 183, 0.4);
         }
 
         .grant-btn:disabled {
@@ -152,16 +161,16 @@
         .video-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0;
-            height: 60vh;
+            gap: 10px;
+            height: 35vh;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 50px;
         }
 
         .video-container {
             position: relative;
             background: #000;
-            border-radius: 0;
+            border-radius: 15px;
             overflow: hidden;
             height: 100%;
             width: 100%;
@@ -190,20 +199,40 @@
             align-items: center;
             justify-content: center;
             font-size: 6em;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
+        }
+
+        .user-avatar {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            font-size: 6em;
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+            z-index: 10;
+        }
+
+        .user-avatar.visible {
+            display: flex;
         }
 
         .chat-section {
             background: #f5f5f5;
             border-radius: 15px;
             padding: 20px;
-            height: 200px;
+            height: 320px;
             width: 100%;
             overflow-y: auto;
             margin-bottom: 20px;
+            margin-top: 20px;
         }
 
         .message {
+            margin-top: 20px;
             margin-bottom: 12px;
             display: flex;
             align-items: flex-start;
@@ -226,7 +255,7 @@
         }
 
         .message.user .message-bubble {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
             color: white;
         }
 
@@ -246,17 +275,18 @@
         }
 
         .input-controls input:focus {
-            border-color: #667eea;
+            border-color: var(--color-primary);
         }
 
         .input-controls button {
             padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
             color: white;
             border: none;
             border-radius: 25px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: var(--font-body);
         }
 
         .control-buttons {
@@ -393,9 +423,30 @@
                 font-size: 2em;
             }
         }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #ffd166;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: var(--font-body);
+            transition: transform 0.2s;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
+    <button class="back-btn" onclick="location.href='index.html'">← Back to Home</button>
     <div class="container">
         <!-- Main Landing Page -->
         <div id="mainPage" class="main-page">
@@ -412,26 +463,9 @@
 
         <!-- Preparation Page -->
         <div id="preparationPage" class="preparation-page">
-            <h2>🎬 Get Ready for Your Interview</h2>
-            <p>
-                We need access to your camera and microphone<br>
-                to conduct the interview practice session.
-            </p>
-            
-            <div class="permission-icons">
-                <span>📹</span>
-                <span>🎤</span>
-            </div>
-
-            <div id="countdownSection" style="display: none;">
-                <p style="font-size: 1.3em; color: #10b981; font-weight: 600;">✅ Permissions Granted!</p>
-                <p>Get ready to start in...</p>
-                <div class="countdown" id="countdown">10</div>
-            </div>
-
-            <button id="grantBtn" class="grant-btn" onclick="requestPermissions()">
-                Grant Camera & Microphone Access
-            </button>
+            <h2>🎬 Preparing Your Interview</h2>
+            <p class="subtitle">Setting up your camera and microphone...</p>
+            <p class="subtitle">Get ready!</p>
         </div>
 
         <!-- Interview Page -->
@@ -440,25 +474,23 @@
 
             <div class="video-grid">
                 <div>
-                    <div class="video-container">
-                        <video id="localVideo" autoplay muted playsinline></video>
-                        <div class="video-label">👤 You</div>
+                    <div class="video-container ai-avatar" id="aiAvatar">
+                        🤖
                     </div>
                 </div>
                 <div>
-                    <div class="video-container ai-avatar" id="aiAvatar">
-                        🤖
+                    <div class="video-container">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="user-avatar" id="userAvatar">
+                            👤
+                        </div>
+                        <div class="video-label">👤 You</div>
                     </div>
                 </div>
             </div>
 
             <div class="chat-section" id="chatContainer">
                 <!-- Messages will appear here -->
-            </div>
-
-            <div id="timerContainer" class="timer-container" style="display: none;">
-                <div class="timer-label">⏱️ Time Remaining to Answer</div>
-                <div class="timer-display" id="timerDisplay">30</div>
             </div>
 
             <div class="input-controls">
@@ -492,47 +524,29 @@
         let isVideoOff = false;
         let recognition = null;
         let isVoiceInputActive = false;
+        let isPaused = false;  // Flag to prevent auto-restart during AI speech
         let speechSynthesis = window.speechSynthesis;
         let countdownInterval = null;
-        let answerTimer = null;
-        let answerTimeRemaining = 30;
-        const ANSWER_TIME_LIMIT = 30;
         let fullTranscript = '';  // Store complete accumulated transcript
 
-        function showPreparation() {
+        async function showPreparation() {
             document.getElementById('mainPage').style.display = 'none';
             document.getElementById('preparationPage').classList.add('active');
-        }
-
-        async function requestPermissions() {
-            const grantBtn = document.getElementById('grantBtn');
-            const countdownSection = document.getElementById('countdownSection');
-            
-            grantBtn.disabled = true;
-            grantBtn.textContent = 'Requesting permissions...';
             
             try {
+                // Request permissions automatically
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 console.log('✅ Permissions granted');
                 
-                grantBtn.style.display = 'none';
-                countdownSection.style.display = 'block';
-                
-                let count = 10;
-                const countdownEl = document.getElementById('countdown');
-                
-                countdownInterval = setInterval(() => {
-                    count--;
-                    countdownEl.textContent = count;
-                    if (count <= 0) {
-                        clearInterval(countdownInterval);
-                        startInterview();
-                    }
-                }, 1000);
+                // Start interview immediately after permission granted
+                setTimeout(() => {
+                    startInterview();
+                }, 1500); // Brief delay to show preparation message
             } catch (error) {
-                alert('❌ Camera/Microphone access denied!\n\nPlease allow access and refresh.');
-                grantBtn.disabled = false;
-                grantBtn.textContent = 'Grant Camera & Microphone Access';
+                console.error('Error accessing media devices:', error);
+                alert('Please allow camera and microphone access to continue.');
+                document.getElementById('mainPage').style.display = 'block';
+                document.getElementById('preparationPage').classList.remove('active');
             }
         }
 
@@ -542,6 +556,13 @@
             updateStatus('Initializing...', 'connecting');
 
             document.getElementById('localVideo').srcObject = localStream;
+            
+            // Turn off camera by default
+            isVideoOff = true;
+            const videoTrack = localStream.getVideoTracks()[0];
+            if (videoTrack) videoTrack.enabled = false;
+            document.getElementById('userAvatar').classList.add('visible');
+            document.getElementById('videoBtn').textContent = '📷 Camera Off';
 
             ws = new WebSocket(WS_URL);
             ws.onopen = () => updateStatus('✅ Connected!', 'connected');
@@ -555,10 +576,7 @@
                         if (wasListening) pauseVoiceRecognition();
                         speakText(data.content, () => { 
                             if (wasListening) resumeVoiceRecognition();
-                            startAnswerTimer();
                         });
-                    } else if (data.role === 'user') {
-                        stopAnswerTimer();
                     }
                 } else if (data.type === 'error') {
                     updateStatus('❌ ' + data.content, 'error');
@@ -572,11 +590,10 @@
             const message = input.value.trim();
             if (!message || !ws || ws.readyState !== WebSocket.OPEN) return;
             
-            stopAnswerTimer();
-            input.style.color = '#000';
             addMessage('user', message);
             ws.send(JSON.stringify({ type: 'message', content: message }));
             input.value = '';
+            fullTranscript = '';  // Clear transcript for next voice input
         }
 
         function handleKeyPress(event) {
@@ -659,6 +676,9 @@
                         input.style.color = '#000';
                     }
                     
+                    // Auto-scroll input to show latest text
+                    input.scrollLeft = input.scrollWidth;
+                    
                     console.log('🎤 Transcript:', input.value);
                 };
 
@@ -672,10 +692,10 @@
                 };
 
                 recognition.onend = () => {
-                    // Only restart if actively listening during answer period
-                    if (isVoiceInputActive && answerTimer !== null) {
+                    // Only restart if actively listening and not paused for AI speech
+                    if (isVoiceInputActive && !isPaused) {
                         setTimeout(() => {
-                            if (isVoiceInputActive && answerTimer !== null) {
+                            if (isVoiceInputActive && !isPaused) {
                                 try { recognition.start(); } catch (e) {}
                             }
                         }, 100);
@@ -697,14 +717,16 @@
         }
 
         function pauseVoiceRecognition() {
+            isPaused = true;
             if (recognition) recognition.stop();
         }
 
         function resumeVoiceRecognition() {
+            isPaused = false;
             if (isVoiceInputActive && recognition) {
                 // Add delay to prevent permission popup
                 setTimeout(() => {
-                    if (isVoiceInputActive) {
+                    if (isVoiceInputActive && !isPaused) {
                         try {
                             recognition.start();
                             console.log('▶️ Voice recognition resumed');
@@ -750,7 +772,15 @@
             const videoTrack = localStream.getVideoTracks()[0];
             if (videoTrack) videoTrack.enabled = !isVideoOff;
             const btn = document.getElementById('videoBtn');
-            btn.textContent = isVideoOff ? '📷 Camera Off' : '📹 Camera On';
+            const userAvatar = document.getElementById('userAvatar');
+            
+            if (isVideoOff) {
+                btn.textContent = '📷 Camera Off';
+                userAvatar.classList.add('visible');
+            } else {
+                btn.textContent = '📹 Camera On';
+                userAvatar.classList.remove('visible');
+            }
         }
 
         function animateAIAvatar() {
@@ -759,74 +789,10 @@
             setTimeout(() => avatar.style.transform = 'scale(1)', 300);
         }
 
-        function startAnswerTimer() {
-            // Clear input and transcript for new answer
-            fullTranscript = '';
-            
-            // Clear input field for new answer
-            const input = document.getElementById('messageInput');
-            input.value = '';
-            input.style.color = '#000';
-            
-            answerTimeRemaining = ANSWER_TIME_LIMIT;
-            const timerContainer = document.getElementById('timerContainer');
-            const timerDisplay = document.getElementById('timerDisplay');
-            
-            timerContainer.style.display = 'block';
-            timerDisplay.textContent = answerTimeRemaining;
-            timerContainer.className = 'timer-container';
-            
-            answerTimer = setInterval(() => {
-                answerTimeRemaining--;
-                timerDisplay.textContent = answerTimeRemaining;
-                
-                // Change color based on time remaining
-                if (answerTimeRemaining <= 5) {
-                    timerContainer.className = 'timer-container urgent';
-                } else if (answerTimeRemaining <= 10) {
-                    timerContainer.className = 'timer-container warning';
-                }
-                
-                if (answerTimeRemaining <= 0) {
-                    stopAnswerTimer();
-                    autoSubmitAnswer();
-                }
-            }, 1000);
-            
-            console.log('⏱️ Answer timer started: 30 seconds');
-        }
-
-        function stopAnswerTimer() {
-            if (answerTimer) {
-                clearInterval(answerTimer);
-                answerTimer = null;
-            }
-            document.getElementById('timerContainer').style.display = 'none';
-        }
-
-        function autoSubmitAnswer() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (message) {
-                console.log('⏱️ Time\'s up! Auto-submitting answer...');
-                sendMessage();
-            } else {
-                console.log('⏱️ Time\'s up! No answer provided, moving on...');
-                // Send a default response to move interview forward
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    addMessage('user', '(No response)');
-                    ws.send(JSON.stringify({ 
-                        type: 'message', 
-                        content: 'I need more time to think about that question.' 
-                    }));
-                }
-            }
-        }
+        // No timer in video chat mode - users can respond at their own pace
 
         function endInterview() {
             if (countdownInterval) clearInterval(countdownInterval);
-            stopAnswerTimer();
             stopVoiceRecognition();
             speechSynthesis.cancel();
             if (localStream) localStream.getTracks().forEach(track => track.stop());

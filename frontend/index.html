@@ -4,7 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatnLearn - AI Interview Coach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --color-primary: #5CCBEE;
+            --color-secondary: #6EE7B7;
+            --color-accent: #FFB4A2;
+            --color-purple: #A78BFA;
+            --color-yellow: #FFD166;
+            --font-body: 'Nunito Sans', sans-serif;
+            --font-headline: 'Comfortaa', cursive;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,8 +25,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
             min-height: 100vh;
             padding: 2rem;
         }
@@ -34,8 +47,10 @@
         }
 
         .header h1 {
+            font-family: var(--font-headline);
+            font-weight: 700;
             font-size: 3rem;
-            color: #667eea;
+            color: var(--color-primary);
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
@@ -77,13 +92,13 @@
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
         }
 
         .version-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(92, 203, 238, 0.3);
+            border-color: var(--color-primary);
         }
 
         .version-header {
@@ -102,6 +117,8 @@
         }
 
         .version-title h2 {
+            font-family: var(--font-headline);
+            font-weight: 700;
             font-size: 1.8rem;
             color: #333;
             margin-bottom: 0.3rem;
@@ -109,17 +126,18 @@
 
         .version-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
             color: white;
             padding: 0.3rem 0.8rem;
             border-radius: 15px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: var(--font-body);
             text-transform: uppercase;
         }
 
         .version-badge.new {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-yellow) 100%);
         }
 
         .version-description {
@@ -144,7 +162,7 @@
 
         .features-list li::before {
             content: '✓';
-            color: #667eea;
+            color: var(--color-secondary);
             font-weight: bold;
             font-size: 1.2rem;
         }
@@ -154,11 +172,12 @@
             border-radius: 10px;
             padding: 1rem;
             margin-bottom: 1.5rem;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--color-primary);
         }
 
         .best-for strong {
-            color: #667eea;
+            color: var(--color-primary);
+            font-weight: 700;
             display: block;
             margin-bottom: 0.5rem;
         }
@@ -171,7 +190,7 @@
 
         .select-btn {
             width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
             color: white;
             border: none;
             padding: 1rem 2rem;
@@ -179,14 +198,15 @@
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-weight: 700;
+            font-family: var(--font-body);
+            box-shadow: 0 4px 15px rgba(92, 203, 238, 0.4);
             margin-top: auto;
         }
 
         .select-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 6px 20px rgba(92, 203, 238, 0.6);
         }
 
         .footer {
@@ -212,7 +232,7 @@
         }
 
         .start-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
             color: white;
             border: none;
             padding: 18px 50px;
@@ -220,12 +240,13 @@
             border-radius: 50px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: var(--font-body);
         }
 
         .start-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(92, 203, 238, 0.4);
         }
 
         .start-btn:active {
@@ -380,7 +401,7 @@
 
         <div class="versions-container">
             <!-- Version 1: Interactive Chat Interview -->
-            <div class="version-card" onclick="location.href='video.html'">
+            <div class="version-card" onclick="location.href='chat_mode.html'">
                 <div class="version-header">
                     <div class="version-icon">💬</div>
                     <div class="version-title">
@@ -407,7 +428,7 @@
             </div>
 
             <!-- Version 2: Real-Time Interview Simulation -->
-            <div class="version-card" onclick="location.href='interview_realtime.html'">
+            <div class="version-card" onclick="location.href='video_mode.html'">
                 <div class="version-header">
                     <div class="version-icon">🎬</div>
                     <div class="version-title">
