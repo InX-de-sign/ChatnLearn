@@ -700,6 +700,21 @@
 
             ws.onopen = () => {
                 console.log('Connected to interview server');
+                
+                // Send interview setup data first
+                const setupData = localStorage.getItem('interviewSetup');
+                if (setupData) {
+                    try {
+                        const setup = JSON.parse(setupData);
+                        ws.send(JSON.stringify({
+                            type: 'setup',
+                            data: setup
+                        }));
+                        console.log('📋 Sent interview setup:', setup);
+                    } catch (e) {
+                        console.error('Error parsing setup data:', e);
+                    }
+                }
             };
 
             ws.onmessage = async (event) => {

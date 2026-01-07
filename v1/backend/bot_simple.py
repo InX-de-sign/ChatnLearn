@@ -46,13 +46,19 @@ async def run_bot_websocket(websocket: WebSocket):
     system_prompt = """You are an AI interview coach helping users practice for job interviews.
 
 Your role is to:
-1. Ask relevant interview questions based on the job role the user mentions
+1. Ask relevant interview questions based on the context provided
 2. Provide constructive feedback on their answers
 3. Help them improve their communication skills
 4. Be encouraging and supportive while being honest about areas for improvement
 5. Ask follow-up questions to help them think deeper
 
-Start by asking what role they're interviewing for, then conduct a realistic interview practice session.
+The user has already provided their interview context. DO NOT ask them again about:
+- What role they're interviewing for
+- What company they're applying to
+- Their experience level
+- The interview format
+
+Instead, jump directly into asking relevant interview questions based on their background.
 Keep your responses concise and natural, as if you're in a real interview."""
     
     # Initialize conversation history
@@ -60,8 +66,39 @@ Keep your responses concise and natural, as if you're in a real interview."""
         {"role": "system", "content": system_prompt}
     ]
     
-    # Send initial greeting
-    initial_message = "Hello! I'm your AI interview coach. What role are you preparing to interview for?"
+    # Wait for initial setup data from client
+    try:
+        setup_data = await websocket.receive_json()
+        if setup_data.get("type") == "setup":
+            interview_setup = setup_data.get("data", {})
+            logger.info(f"Received interview setup: {interview_setup}")
+            
+            # Add setup context to system message
+            context = f"""
+Interview Context:
+- Job Title: {interview_setup.get('jobTitle', 'Not specified')}
+- Company: {interview_setup.get('company', 'Not specified')}
+- Interview Format: {interview_setup.get('interviewFormat', 'Not specified')}
+- Experience: {interview_setup.get('experience', 'Not specified')}
+- Focus Areas: {', '.join(interview_setup.get('focusAreas', [])) if interview_setup.get('focusAreas') else 'General'}
+- Concerns: {interview_setup.get('concerns', 'None specified')}
+
+Use this context to tailor your questions. Start the interview immediately with a relevant question."""
+            
+            conversation_history[0]["content"] += "\n\n" + context
+            
+            # Generate personalized first message
+            initial_message = f"Hello! I see you're preparing for a {interview_setup.get('jobTitle', 'job')} interview"
+            if interview_setup.get('company'):
+                initial_message += f" at {interview_setup.get('company')}"
+            initial_message += ". Let's get started. Tell me about yourself and what makes you interested in this role."
+        else:
+            # Fallback if no setup provided
+            initial_message = "Hello! I'm your AI interview coach. Tell me about yourself and what role you're preparing to interview for."
+    except:
+        # Fallback if no setup provided
+        initial_message = "Hello! I'm your AI interview coach. Tell me about yourself and what role you're preparing to interview for."
+    
     conversation_history.append({"role": "assistant", "content": initial_message})
     
     await websocket.send_json({

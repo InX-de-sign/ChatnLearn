@@ -565,7 +565,24 @@
             document.getElementById('videoBtn').textContent = '📷 Camera Off';
 
             ws = new WebSocket(WS_URL);
-            ws.onopen = () => updateStatus('✅ Connected!', 'connected');
+            ws.onopen = () => {
+                updateStatus('✅ Connected!', 'connected');
+                
+                // Send interview setup data first
+                const setupData = localStorage.getItem('interviewSetup');
+                if (setupData) {
+                    try {
+                        const setup = JSON.parse(setupData);
+                        ws.send(JSON.stringify({
+                            type: 'setup',
+                            data: setup
+                        }));
+                        console.log('📋 Sent interview setup:', setup);
+                    } catch (e) {
+                        console.error('Error parsing setup data:', e);
+                    }
+                }
+            };
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 if (data.type === 'message') {

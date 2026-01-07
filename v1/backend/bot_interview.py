@@ -12,20 +12,40 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class InterviewBot:
-    def __init__(self):
+    def __init__(self, interview_setup=None):
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
         self.endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         self.deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
         self.api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+        self.interview_setup = interview_setup or {}
         
-        # Interview questions pool
-        self.questions = [
-            "Tell me about yourself and your background.",
-            "What interests you most about this role?",
-            "Describe a challenging project you've worked on recently.",
-            "How do you handle tight deadlines and pressure?",
-            "Where do you see yourself in five years?"
-        ]
+        # Customize questions based on setup
+        job_title = self.interview_setup.get('jobTitle', 'this position')
+        focus_areas = self.interview_setup.get('focusAreas', [])
+        
+        # Interview questions pool - customize based on focus areas
+        self.questions = []
+        
+        # Always start with tell me about yourself
+        self.questions.append("Tell me about yourself and your background.")
+        
+        # Add role-specific question
+        self.questions.append(f"What interests you most about the {job_title} role?")
+        
+        # Add questions based on focus areas
+        if 'technical' in focus_areas:
+            self.questions.append("Describe a technically challenging project you've worked on recently. What was your approach?")
+        if 'behavioral' in focus_areas or 'leadership' in focus_areas:
+            self.questions.append("Tell me about a time when you had to deal with a difficult team member or conflict.")
+        if 'problem-solving' in focus_areas:
+            self.questions.append("Walk me through your problem-solving process when facing a complex challenge.")
+        if 'communication' in focus_areas:
+            self.questions.append("Describe a situation where you had to explain a complex concept to someone without technical knowledge.")
+        
+        # Add general questions
+        self.questions.append("How do you handle tight deadlines and pressure?")
+        self.questions.append("Where do you see yourself in five years?")
+        
         self.current_question_index = 0
         self.conversation_history = []
         self.qa_pairs = []  # Store all Q&A pairs for final analysis
@@ -47,8 +67,20 @@ class InterviewBot:
                 "content": user_message
             })
             
-            # Build system prompt for interviewer behavior
-            system_prompt = """You are a professional job interviewer conducting a realistic behavioral interview. 
+            # Build system prompt for interviewer behavior with context
+            context_info = ""
+            if self.interview_setup:
+                context_info = f"""
+Interview Context:
+- Job Title: {self.interview_setup.get('jobTitle', 'Not specified')}
+- Company: {self.interview_setup.get('company', 'Not specified')}
+- Interview Format: {self.interview_setup.get('interviewFormat', 'Not specified')}
+- Candidate Experience: {self.interview_setup.get('experience', 'Not specified')}
+- Focus Areas: {', '.join(self.interview_setup.get('focusAreas', [])) if self.interview_setup.get('focusAreas') else 'General'}
+
+"""
+            
+            system_prompt = f"""{context_info}You are a professional job interviewer conducting a realistic behavioral interview. 
 Your role is to:
 - Ask questions naturally and professionally
 - Listen to candidate responses without excessive praise
@@ -59,6 +91,7 @@ Your role is to:
 - Move smoothly between topics
 - Maintain a formal, realistic interview atmosphere
 - Respond with brief acknowledgments like "I see", "Understood", "Thank you" before next questions
+- DO NOT ask about job title, company, or background already provided in context
 
 Keep your responses concise, neutral, and professional, as if in a real corporate interview."""
             
@@ -115,7 +148,14 @@ Keep your responses concise, neutral, and professional, as if in a real corporat
     
     async def start_interview(self, websocket) -> str:
         """Send initial greeting and first question"""
-        greeting = "Hello! I'm excited to speak with you today. Let's get started with our interview. "
+        job_title = self.interview_setup.get('jobTitle', 'this position')
+        company = self.interview_setup.get('company', '')
+        
+        greeting = f"Hello! Thank you for taking the time to interview with us today"
+        if company:
+            greeting += f" at {company}"
+        greeting += f" for the {job_title} position. "
+        
         first_question = self.get_next_question()
         
         full_message = greeting + first_question
@@ -271,10 +311,20 @@ Be specific, constructive, and encouraging in your feedback."""
 
 async def run_interview_bot(websocket):
     """Main function to run the interview bot"""
-    bot = InterviewBot()
     
     try:
         logger.info("🎤 Interview bot starting...")
+        
+        # Wait for interview setup data
+        setup_data = await websocket.receive_json()
+        interview_setup = {}
+        
+        if setup_data.get("type") == "setup":
+            interview_setup = setup_data.get("data", {})
+            logger.info(f"Received interview setup: {interview_setup}")
+        
+        # Initialize bot with setup data
+        bot = InterviewBot(interview_setup)
         
         # Send initial greeting and first question
         initial_message = await bot.start_interview(websocket)
