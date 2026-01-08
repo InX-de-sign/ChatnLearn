@@ -8,8 +8,8 @@ const API_CONFIG = {
     },
     // Production (update with your Railway URL after deployment)
     production: {
-        ws: 'wss://your-app.railway.app',
-        http: 'https://your-app.railway.app'
+        ws: 'wss://chatnlearn-production.up.railway.app',
+        http: 'https://chatnlearn-production.up.railway.app'
     }
 };
 
