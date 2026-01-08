@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ["python311"]
-
-[phases.install]
-cmds = ["cd v4 && pip install uv && uv sync --locked --no-dev"]
-
-[start]
-cmd = "cd v4 && uv run python server.py"
