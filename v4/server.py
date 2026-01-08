@@ -69,10 +69,16 @@ app.add_middleware(
 # Serve frontend
 frontend_dir = Path(__file__).parent / "frontend"
 
+# Mount static files (for JS, CSS, etc.)
+app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+
 
 @app.get("/")
 async def serve_index():
-    return FileResponse(frontend_dir / "index.html")
+    index_file = frontend_dir / "index.html"
+    if not index_file.exists():
+        return JSONResponse({"error": "Frontend not found", "path": str(index_file)}, status_code=500)
+    return FileResponse(index_file)
 
 
 @app.get("/{filename}.html")
@@ -80,6 +86,14 @@ async def serve_html(filename: str):
     file_path = frontend_dir / f"{filename}.html"
     if file_path.exists():
         return FileResponse(file_path)
+    return JSONResponse({"error": "Not found"}, status_code=404)
+
+
+@app.get("/{filename}.js")
+async def serve_js(filename: str):
+    file_path = frontend_dir / f"{filename}.js"
+    if file_path.exists():
+        return FileResponse(file_path, media_type="application/javascript")
     return JSONResponse({"error": "Not found"}, status_code=404)
 
 
