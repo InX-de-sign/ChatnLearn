@@ -19,7 +19,8 @@ COPY uv.lock pyproject.toml ./
 RUN uv sync --locked --no-install-project --no-dev
 
 # Copy the application code
-COPY ./bot.py bot.py
+COPY ./server.py server.py
+COPY ./frontend frontend
 
 # Run the bot
-CMD ["uv", "run", "bot.py"]
+CMD ["uv", "run", "server.py"]

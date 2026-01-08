@@ -300,11 +300,12 @@ async def handle_ice_candidate(request: Request):
 
 
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", 7860))
     print("\n" + "=" * 60)
     print("🎯 AI Interview Coach Server")
     print("=" * 60)
     print()
-    print("Open in browser: http://localhost:7860")
+    print(f"Open in browser: http://localhost:{port}")
     print()
     print("API Endpoints:")
     print("  POST /api/setup  - Set interview context")
@@ -312,4 +313,4 @@ if __name__ == "__main__":
     print("  PATCH /api/offer - ICE candidates")
     print("=" * 60 + "\n")
     
-    uvicorn.run(app, host="0.0.0.0", port=7860, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")

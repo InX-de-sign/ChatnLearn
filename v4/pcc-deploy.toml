@@ -1,5 +1,5 @@
 agent_name = "quickstart"
-image = "inxfiona/quickstart:latest"
+image = "inxfiona/interview-bot:latest"
 secret_set = "quickstart-secrets"
 agent_profile = "agent-1x"
 
