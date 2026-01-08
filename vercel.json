@@ -1,23 +1,20 @@
 {
-  "routes": [
+  "version": 2,
+  "builds": [
     {
-      "src": "/(.*)",
-      "dest": "/v1/frontend/$1"
+      "src": "v1/frontend/**",
+      "use": "@vercel/static"
     }
   ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, OPTIONS"
-        }
-      ]
-    }
+  "routes": [
+    { "src": "/", "dest": "/v1/frontend/index.html" },
+    { "src": "/index.html", "dest": "/v1/frontend/index.html" },
+    { "src": "/chat_mode.html", "dest": "/v1/frontend/chat_mode.html" },
+    { "src": "/video_mode.html", "dest": "/v1/frontend/video_mode.html" },
+    { "src": "/info_gather.html", "dest": "/v1/frontend/info_gather.html" },
+    { "src": "/config.js", "dest": "/v1/frontend/config.js" },
+    { "src": "/(.*\\.html)", "dest": "/v1/frontend/$1" },
+    { "src": "/(.*\\.js)", "dest": "/v1/frontend/$1" },
+    { "src": "/(.*\\.css)", "dest": "/v1/frontend/$1" }
   ]
 }
