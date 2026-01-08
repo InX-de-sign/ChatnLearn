@@ -69,8 +69,30 @@ app.add_middleware(
 # Serve frontend
 frontend_dir = Path(__file__).parent / "frontend"
 
-# Mount static files (for JS, CSS, etc.)
-app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+# Debug: Log the frontend path on startup
+import os
+print(f"📁 Frontend directory: {frontend_dir}")
+print(f"📁 Frontend exists: {frontend_dir.exists()}")
+if frontend_dir.exists():
+    print(f"📁 Frontend contents: {list(frontend_dir.iterdir())}")
+print(f"📁 Current working directory: {os.getcwd()}")
+print(f"📁 __file__: {__file__}")
+
+# Mount static files (for JS, CSS, etc.) - only if directory exists
+if frontend_dir.exists():
+    app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+
+
+@app.get("/debug")
+async def debug_info():
+    """Debug endpoint to check frontend path."""
+    return {
+        "frontend_dir": str(frontend_dir),
+        "frontend_exists": frontend_dir.exists(),
+        "cwd": os.getcwd(),
+        "file": __file__,
+        "contents": [str(f) for f in frontend_dir.iterdir()] if frontend_dir.exists() else []
+    }
 
 
 @app.get("/")

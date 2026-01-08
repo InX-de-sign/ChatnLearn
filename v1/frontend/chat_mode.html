@@ -519,8 +519,9 @@
 
     <script src="config.js"></script>
     <script>
-        // Fallback if config.js doesn't load
+        // Fallback if config.js doesn't load - v2 fix
         const WS_URL = (window.WS_URL || 'wss://chatnlearn-production.up.railway.app') + '/ws/interview';
+        console.log('WebSocket URL:', WS_URL);
         let ws = null;
         let localStream = null;
         let isVideoOff = false;
