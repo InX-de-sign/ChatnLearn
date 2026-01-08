@@ -696,8 +696,9 @@
             const userVideo = document.getElementById('userVideo');
             userVideo.srcObject = localStream;
 
-            // Initialize WebSocket
-            ws = new WebSocket(window.WS_URL + '/ws/interview-realtime');
+            // Initialize WebSocket (with fallback if config.js doesn't load)
+            const wsUrl = (window.WS_URL || 'wss://chatnlearn-production.up.railway.app') + '/ws/interview-realtime';
+            ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
                 console.log('Connected to interview server');

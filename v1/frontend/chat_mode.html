@@ -519,7 +519,8 @@
 
     <script src="config.js"></script>
     <script>
-        const WS_URL = window.WS_URL + '/ws/interview';
+        // Fallback if config.js doesn't load
+        const WS_URL = (window.WS_URL || 'wss://chatnlearn-production.up.railway.app') + '/ws/interview';
         let ws = null;
         let localStream = null;
         let isVideoOff = false;
