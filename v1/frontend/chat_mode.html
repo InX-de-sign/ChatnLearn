@@ -517,8 +517,9 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
-        const WS_URL = 'ws://localhost:8000/ws/interview';
+        const WS_URL = window.WS_URL + '/ws/interview';
         let ws = null;
         let localStream = null;
         let isVideoOff = false;

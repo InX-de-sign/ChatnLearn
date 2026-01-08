@@ -628,6 +628,7 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
         let ws = null;
         let localStream = null;
@@ -696,7 +697,7 @@
             userVideo.srcObject = localStream;
 
             // Initialize WebSocket
-            ws = new WebSocket('ws://localhost:8000/ws/interview-realtime');
+            ws = new WebSocket(window.WS_URL + '/ws/interview-realtime');
 
             ws.onopen = () => {
                 console.log('Connected to interview server');
