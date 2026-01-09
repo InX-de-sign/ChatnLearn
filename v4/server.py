@@ -15,7 +15,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from loguru import logger
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -287,35 +287,41 @@ connections = {}
 @app.post("/api/offer")
 async def handle_offer(request: Request):
     """Handle WebRTC SDP offer."""
-    data = await request.json()
-    
-    # Capture request_data if provided
-    if data.get("request_data"):
-        interview_context["current"] = data["request_data"]
-        logger.info(f"📋 Captured setup from offer: {data['request_data']}")
-    
-    # Create WebRTC connection
-    connection = SmallWebRTCConnection()
-    
-    # Get the current setup
-    setup_data = interview_context.get("current")
-    
-    # Initialize with the offer SDP and get answer
-    await connection.initialize(data["sdp"], data.get("type", "offer"))
-    answer = connection.get_answer()  # Not async - returns dict directly
-    
-    # Generate connection ID
-    pc_id = connection.pc_id or str(id(connection))
-    connections[pc_id] = connection
-    
-    # Start the bot in background
-    asyncio.create_task(run_bot(connection, setup_data))
-    
-    return {
-        "sdp": answer["sdp"],
-        "type": answer["type"],
-        "pc_id": pc_id
-    }
+    try:
+        data = await request.json()
+        logger.info(f"📥 Received offer: {data.get('type', 'offer')}")
+        
+        # Capture request_data if provided
+        if data.get("request_data"):
+            interview_context["current"] = data["request_data"]
+            logger.info(f"📋 Captured setup from offer: {data['request_data']}")
+        
+        # Create WebRTC connection
+        connection = SmallWebRTCConnection()
+        
+        # Get the current setup
+        setup_data = interview_context.get("current")
+        
+        # Initialize with the offer SDP and get answer
+        await connection.initialize(data["sdp"], data.get("type", "offer"))
+        answer = connection.get_answer()  # Not async - returns dict directly
+        
+        # Generate connection ID
+        pc_id = connection.pc_id or str(id(connection))
+        connections[pc_id] = connection
+        
+        # Start the bot in background
+        asyncio.create_task(run_bot(connection, setup_data))
+        
+        logger.info(f"✅ Offer handled successfully, pc_id: {pc_id}")
+        return {
+            "sdp": answer["sdp"],
+            "type": answer["type"],
+            "pc_id": pc_id
+        }
+    except Exception as e:
+        logger.error(f"❌ Error handling offer: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.patch("/api/offer")
