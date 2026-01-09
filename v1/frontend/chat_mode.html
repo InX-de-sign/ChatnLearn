@@ -519,8 +519,10 @@
 
     <script src="config.js"></script>
     <script>
-        // Fallback if config.js doesn't load - v2 fix
-        const WS_URL = (window.WS_URL || 'wss://chatnlearn-production.up.railway.app') + '/ws/interview';
+        // Ensure production URL is used - hardcoded for reliability
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const WS_BASE = isLocal ? 'ws://localhost:8000' : 'wss://chatnlearn-production.up.railway.app';
+        const WS_URL = WS_BASE + '/ws/interview';
         console.log('WebSocket URL:', WS_URL);
         let ws = null;
         let localStream = null;

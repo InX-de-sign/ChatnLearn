@@ -696,8 +696,11 @@
             const userVideo = document.getElementById('userVideo');
             userVideo.srcObject = localStream;
 
-            // Initialize WebSocket (with fallback if config.js doesn't load)
-            const wsUrl = (window.WS_URL || 'wss://chatnlearn-production.up.railway.app') + '/ws/interview-realtime';
+            // WebSocket URL with environment detection
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const WS_BASE = isLocal ? 'ws://localhost:8000' : 'wss://chatnlearn-production.up.railway.app';
+            const wsUrl = WS_BASE + '/ws/interview-realtime';
+            console.log('WebSocket URL:', wsUrl);
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
