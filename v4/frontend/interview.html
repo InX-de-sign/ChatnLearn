@@ -405,6 +405,7 @@
         let isMuted = false;
         let captionsEnabled = false;
         let currentAIMessage = '';
+        let currentCaptionText = ''; // Accumulate caption words
         let recordingTimer = null;
         let recordingTimeLeft = 30;
         let isAiSpeaking = false;
@@ -552,6 +553,29 @@
                         console.log('Received message from server:', msgEvent.data);
                         try {
                             const msg = JSON.parse(msgEvent.data);
+                            
+                            // Handle RTVI bot-output messages (word-by-word)
+                            if ((msg.type === 'bot-output' || msg.type === 'bot-tts-text') && msg.data?.text) {
+                                const word = msg.data.text;
+                                currentCaptionText += (currentCaptionText ? ' ' : '') + word;
+                                
+                                // Update captions in real-time if enabled
+                                if (captionsEnabled) {
+                                    const captionElement = document.getElementById('captionText');
+                                    captionElement.textContent = currentCaptionText;
+                                }
+                                
+                                // Check if sentence is complete (ends with punctuation)
+                                if (/[.!?]$/.test(word)) {
+                                    if (currentCaptionText.trim()) {
+                                        currentAIMessage = currentCaptionText.trim();
+                                        addTranscriptEntry('ai', currentAIMessage);
+                                    }
+                                    currentCaptionText = '';
+                                }
+                            }
+                            
+                            // Legacy: Handle bot-transcription messages
                             if (msg.type === 'bot-transcription' && msg.data) {
                                 currentAIMessage = msg.data;
                                 addTranscriptEntry('ai', msg.data);
@@ -579,6 +603,29 @@
                     console.log('Received on client channel:', event.data);
                     try {
                         const msg = JSON.parse(event.data);
+                        
+                        // Handle RTVI bot-output messages (word-by-word)
+                        if ((msg.type === 'bot-output' || msg.type === 'bot-tts-text') && msg.data?.text) {
+                            const word = msg.data.text;
+                            currentCaptionText += (currentCaptionText ? ' ' : '') + word;
+                            
+                            // Update captions in real-time if enabled
+                            if (captionsEnabled) {
+                                const captionElement = document.getElementById('captionText');
+                                captionElement.textContent = currentCaptionText;
+                            }
+                            
+                            // Check if sentence is complete (ends with punctuation)
+                            if (/[.!?]$/.test(word)) {
+                                if (currentCaptionText.trim()) {
+                                    currentAIMessage = currentCaptionText.trim();
+                                    addTranscriptEntry('ai', currentAIMessage);
+                                }
+                                currentCaptionText = '';
+                            }
+                        }
+                        
+                        // Legacy: Handle bot-transcription messages (sentence-by-sentence)
                         if (msg.type === 'bot-transcription' && msg.data) {
                             currentAIMessage = msg.data;
                             addTranscriptEntry('ai', msg.data);
