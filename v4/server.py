@@ -303,23 +303,15 @@ async def handle_offer(request: Request):
             logger.info(f"📋 Captured setup from offer: {data['request_data']}")
         
         # Configure ICE servers (STUN/TURN) for WebRTC connectivity
+        # Using string URLs format
         ice_servers = [
-            {"urls": ["stun:stun.l.google.com:19302"]},
-            {"urls": ["stun:stun1.l.google.com:19302"]},
-            # Open relay TURN server (free, public)
-            {
-                "urls": ["turn:openrelay.metered.ca:80"],
-                "username": "openrelayproject",
-                "credential": "openrelayproject"
-            },
-            {
-                "urls": ["turn:openrelay.metered.ca:443"],
-                "username": "openrelayproject",
-                "credential": "openrelayproject"
-            },
+            "stun:stun.l.google.com:19302",
+            "stun:stun1.l.google.com:19302",
+            # Note: TURN servers with auth need RTCIceServer objects, not strings
+            # For now using STUN only, will work if clients can do direct connection
         ]
         
-        # Create WebRTC connection
+        # Create WebRTC connection with ICE servers
         connection = SmallWebRTCConnection(ice_servers=ice_servers)
         
         # Get the current setup
