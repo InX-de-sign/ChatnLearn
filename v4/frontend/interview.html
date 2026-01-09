@@ -416,7 +416,10 @@
         let interviewStartTime = null;
         let questionCount = 0;
 
-        const BOT_URL = 'http://localhost:7860';
+        // Auto-detect environment for BOT_URL
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const BOT_URL = isLocal ? 'http://localhost:7860' : window.location.origin;
+        console.log('BOT_URL:', BOT_URL);
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
