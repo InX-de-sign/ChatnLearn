@@ -19,7 +19,6 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
-from aiortc import RTCIceCandidate, RTCConfiguration, RTCIceServer
 from aiortc.sdp import candidate_from_sdp
 import uvicorn
 
@@ -304,26 +303,24 @@ async def handle_offer(request: Request):
             logger.info(f"📋 Captured setup from offer: {data['request_data']}")
         
         # Configure ICE servers (STUN/TURN) for WebRTC connectivity
-        # Using Google STUN servers and open TURN servers
         ice_servers = [
-            RTCIceServer(urls=["stun:stun.l.google.com:19302"]),
-            RTCIceServer(urls=["stun:stun1.l.google.com:19302"]),
+            {"urls": ["stun:stun.l.google.com:19302"]},
+            {"urls": ["stun:stun1.l.google.com:19302"]},
             # Open relay TURN server (free, public)
-            RTCIceServer(
-                urls=["turn:openrelay.metered.ca:80"],
-                username="openrelayproject",
-                credential="openrelayproject"
-            ),
-            RTCIceServer(
-                urls=["turn:openrelay.metered.ca:443"],
-                username="openrelayproject",
-                credential="openrelayproject"
-            ),
+            {
+                "urls": ["turn:openrelay.metered.ca:80"],
+                "username": "openrelayproject",
+                "credential": "openrelayproject"
+            },
+            {
+                "urls": ["turn:openrelay.metered.ca:443"],
+                "username": "openrelayproject",
+                "credential": "openrelayproject"
+            },
         ]
-        rtc_config = RTCConfiguration(iceServers=ice_servers)
         
-        # Create WebRTC connection with ICE server configuration
-        connection = SmallWebRTCConnection(configuration=rtc_config)
+        # Create WebRTC connection
+        connection = SmallWebRTCConnection(ice_servers=ice_servers)
         
         # Get the current setup
         setup_data = interview_context.get("current")
