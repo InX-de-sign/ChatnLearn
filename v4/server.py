@@ -20,6 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from aiortc import RTCIceCandidate
+from aiortc.sdp import candidate_from_sdp
 import uvicorn
 
 load_dotenv(override=True)
@@ -343,12 +344,16 @@ async def handle_ice_candidate(request: Request):
             return JSONResponse({"error": "Connection not found"}, status_code=404)
         
         for candidate in candidates:
-            # Convert dict to RTCIceCandidate object
-            ice_candidate = RTCIceCandidate(
-                sdpMid=candidate.get("sdp_mid"),
-                sdpMLineIndex=candidate.get("sdp_mline_index"),
-                candidate=candidate.get("candidate")
-            )
+            # Parse the candidate string and create RTCIceCandidate object
+            candidate_str = candidate.get("candidate")
+            sdp_mid = candidate.get("sdp_mid")
+            sdp_mline_index = candidate.get("sdp_mline_index")
+            
+            # Use aiortc's parser to create the candidate from SDP string
+            ice_candidate = candidate_from_sdp(candidate_str.split(":", 1)[1])
+            ice_candidate.sdpMid = sdp_mid
+            ice_candidate.sdpMLineIndex = sdp_mline_index
+            
             await connection.add_ice_candidate(ice_candidate)
         
         return {"status": "ok"}
