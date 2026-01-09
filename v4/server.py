@@ -19,6 +19,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
+from aiortc import RTCIceCandidate
 import uvicorn
 
 load_dotenv(override=True)
@@ -327,18 +328,28 @@ async def handle_offer(request: Request):
 @app.patch("/api/offer")
 async def handle_ice_candidate(request: Request):
     """Handle ICE candidates."""
-    data = await request.json()
-    pc_id = data.get("pc_id")
-    candidates = data.get("candidates", [])
-    
-    connection = connections.get(pc_id)
-    if not connection:
-        return JSONResponse({"error": "Connection not found"}, status_code=404)
-    
-    for candidate in candidates:
-        await connection.add_ice_candidate(candidate)
-    
-    return {"status": "ok"}
+    try:
+        data = await request.json()
+        pc_id = data.get("pc_id")
+        candidates = data.get("candidates", [])
+        
+        connection = connections.get(pc_id)
+        if not connection:
+            return JSONResponse({"error": "Connection not found"}, status_code=404)
+        
+        for candidate in candidates:
+            # Convert dict to RTCIceCandidate object
+            ice_candidate = RTCIceCandidate(
+                sdpMid=candidate.get("sdp_mid"),
+                sdpMLineIndex=candidate.get("sdp_mline_index"),
+                candidate=candidate.get("candidate")
+            )
+            await connection.add_ice_candidate(ice_candidate)
+        
+        return {"status": "ok"}
+    except Exception as e:
+        logger.error(f"❌ Error handling ICE candidate: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
