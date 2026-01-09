@@ -548,14 +548,13 @@
                 peerConnection.ondatachannel = (event) => {
                     const serverChannel = event.channel;
                     console.log('Received data channel from server:', serverChannel.label);
-                    
                     serverChannel.onmessage = (msgEvent) => {
                         console.log('Received message from server:', msgEvent.data);
                         try {
                             const msg = JSON.parse(msgEvent.data);
                             
-                            // Handle RTVI bot-output messages (word-by-word)
-                            if ((msg.type === 'bot-output' || msg.type === 'bot-tts-text') && msg.data?.text) {
+                            // Handle RTVI bot-output messages (word-by-word) - only process bot-tts-text to avoid duplicates
+                            if (msg.type === 'bot-tts-text' && msg.data?.text) {
                                 const word = msg.data.text;
                                 currentCaptionText += (currentCaptionText ? ' ' : '') + word;
                                 
@@ -604,8 +603,8 @@
                     try {
                         const msg = JSON.parse(event.data);
                         
-                        // Handle RTVI bot-output messages (word-by-word)
-                        if ((msg.type === 'bot-output' || msg.type === 'bot-tts-text') && msg.data?.text) {
+                        // Handle RTVI bot-tts-text messages (word-by-word) - only process bot-tts-text to avoid duplicates
+                        if (msg.type === 'bot-tts-text' && msg.data?.text) {
                             const word = msg.data.text;
                             currentCaptionText += (currentCaptionText ? ' ' : '') + word;
                             
