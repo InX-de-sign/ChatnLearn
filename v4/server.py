@@ -167,29 +167,33 @@ class TranscriptProcessor(FrameProcessor):
 
 async def run_bot(connection: SmallWebRTCConnection, setup_data: dict = None):
     """Run the interview bot for a connection."""
-    logger.info(f"Starting bot with setup: {setup_data}")
-    
-    # Initialize services
-    stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
-    tts = CartesiaTTSService(
-        api_key=os.getenv("CARTESIA_API_KEY"),
-        voice_id="79a125e8-cd45-4c13-8a67-188112f4dd22",  # British Lady
-    )
-    llm = AzureLLMService(
-        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-        endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-        model=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
-        api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-    )
-    
-    # Simli AI Avatar - processes TTS audio and generates video
-    simli_ai = SimliVideoService(
-        api_key=os.getenv("SIMLI_API_KEY"),
-        face_id=os.getenv("SIMLI_FACE_ID"),
-    )
-    
-    # System prompt
-    system_prompt = """You are a professional AI interview coach conducting a realistic job interview practice session.
+    try:
+        logger.info(f"Starting bot with setup: {setup_data}")
+        
+        # Initialize services
+        stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
+        tts = CartesiaTTSService(
+            api_key=os.getenv("CARTESIA_API_KEY"),
+            voice_id="79a125e8-cd45-4c13-8a67-188112f4dd22",  # British Lady
+        )
+        llm = AzureLLMService(
+            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+            endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+            model=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
+            api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+        )
+        
+        # Simli AI Avatar - processes TTS audio and generates video
+        simli_ai = SimliVideoService(
+            api_key=os.getenv("SIMLI_API_KEY"),
+            face_id=os.getenv("SIMLI_FACE_ID"),
+        )
+        
+        # System prompt
+        system_prompt = """You are a professional AI interview coach conducting a realistic job interview practice session.
+
+        # System prompt
+        system_prompt = """You are a professional AI interview coach conducting a realistic job interview practice session.
 
 Your role is to:
 - Ask relevant behavioral and technical interview questions
@@ -208,77 +212,81 @@ Interview Guidelines:
 
 Keep your tone professional yet encouraging. Ask one question at a time and wait for responses."""
 
-    messages = [{"role": "system", "content": system_prompt}]
-    
-    # Add context based on setup
-    if setup_data:
-        context_msg = f"""The candidate has provided the following information:
+        messages = [{"role": "system", "content": system_prompt}]
+        
+        # Add context based on setup
+        if setup_data:
+            context_msg = f"""The candidate has provided the following information:
 - Target Position: {setup_data.get('jobTitle', 'Not specified')}
 - Company: {setup_data.get('company', 'Not specified')}
 - Interview Format: {setup_data.get('interviewFormat', 'Not specified')}
 - Experience: {setup_data.get('experience', 'Not specified')}
 
 Greet the candidate warmly by acknowledging you know they're preparing for the {setup_data.get('jobTitle', 'position')} role at {setup_data.get('company', 'their target company')}. Start with your first interview question directly - do NOT ask them what role they're preparing for since you already know."""
-        messages.append({"role": "system", "content": context_msg})
-    else:
-        messages.append({
-            "role": "system", 
-            "content": "Greet the candidate warmly and ask what job role they are preparing to interview for. Keep it brief and professional."
-        })
+            messages.append({"role": "system", "content": context_msg})
+        else:
+            messages.append({
+                "role": "system", 
+                "content": "Greet the candidate warmly and ask what job role they are preparing to interview for. Keep it brief and professional."
+            })
+        
+        context = LLMContext(messages)
+        context_aggregator = LLMContextAggregatorPair(context)
+        rtvi = RTVIProcessor(config=RTVIConfig(config=[]))
+        
+        # Create transport with video output enabled for Simli avatar
+        transport = SmallWebRTCTransport(
+            webrtc_connection=connection,
+            params=TransportParams(
+                audio_in_enabled=True,
+                audio_out_enabled=True,
+                video_out_enabled=True,
+                video_out_is_live=True,
+                video_out_width=512,
+                video_out_height=512,
+                vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.5)),
+                turn_analyzer=LocalSmartTurnAnalyzerV3(),
+            ),
+        )
+        
+        # Create transcript processor
+        transcript_processor = TranscriptProcessor(connection)
+        
+        pipeline = Pipeline([
+            transport.input(),
+            rtvi,
+            stt,
+            context_aggregator.user(),
+            llm,
+            transcript_processor,
+            tts,
+            simli_ai,  # Simli processes TTS audio and outputs video frames
+            transport.output(),
+            context_aggregator.assistant(),
+        ])
+        
+        task = PipelineTask(
+            pipeline,
+            params=PipelineParams(enable_metrics=True, enable_usage_metrics=True),
+            observers=[RTVIObserver(rtvi)],
+        )
+        
+        @transport.event_handler("on_client_connected")
+        async def on_client_connected(transport, client):
+            logger.info("Client connected - Starting interview")
+            await task.queue_frames([LLMRunFrame()])
+        
+        @transport.event_handler("on_client_disconnected")
+        async def on_client_disconnected(transport, client):
+            logger.info("Client disconnected")
+            await task.cancel()
+        
+        runner = PipelineRunner(handle_sigint=False)
+        await runner.run(task)
     
-    context = LLMContext(messages)
-    context_aggregator = LLMContextAggregatorPair(context)
-    rtvi = RTVIProcessor(config=RTVIConfig(config=[]))
-    
-    # Create transport with video output enabled for Simli avatar
-    transport = SmallWebRTCTransport(
-        webrtc_connection=connection,
-        params=TransportParams(
-            audio_in_enabled=True,
-            audio_out_enabled=True,
-            video_out_enabled=True,
-            video_out_is_live=True,
-            video_out_width=512,
-            video_out_height=512,
-            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.5)),
-            turn_analyzer=LocalSmartTurnAnalyzerV3(),
-        ),
-    )
-    
-    # Create transcript processor
-    transcript_processor = TranscriptProcessor(connection)
-    
-    pipeline = Pipeline([
-        transport.input(),
-        rtvi,
-        stt,
-        context_aggregator.user(),
-        llm,
-        transcript_processor,
-        tts,
-        simli_ai,  # Simli processes TTS audio and outputs video frames
-        transport.output(),
-        context_aggregator.assistant(),
-    ])
-    
-    task = PipelineTask(
-        pipeline,
-        params=PipelineParams(enable_metrics=True, enable_usage_metrics=True),
-        observers=[RTVIObserver(rtvi)],
-    )
-    
-    @transport.event_handler("on_client_connected")
-    async def on_client_connected(transport, client):
-        logger.info("Client connected - Starting interview")
-        await task.queue_frames([LLMRunFrame()])
-    
-    @transport.event_handler("on_client_disconnected")
-    async def on_client_disconnected(transport, client):
-        logger.info("Client disconnected")
-        await task.cancel()
-    
-    runner = PipelineRunner(handle_sigint=False)
-    await runner.run(task)
+    except Exception as e:
+        logger.error(f"❌ Bot execution failed: {str(e)}", exc_info=True)
+        # Don't crash the server, just log the error
 
 
 # Store active connections
