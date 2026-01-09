@@ -192,9 +192,6 @@ async def run_bot(connection: SmallWebRTCConnection, setup_data: dict = None):
         # System prompt
         system_prompt = """You are a professional AI interview coach conducting a realistic job interview practice session.
 
-        # System prompt
-        system_prompt = """You are a professional AI interview coach conducting a realistic job interview practice session.
-
 Your role is to:
 - Ask relevant behavioral and technical interview questions
 - Listen actively to the candidate's responses
